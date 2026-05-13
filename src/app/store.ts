@@ -1,11 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit'
+import { baseApi } from '../api/baseApi'
 
 export const store = configureStore({
   reducer: {
-    // add slices here, e.g. user: userReducer
-    // add RTK Query API reducers here, e.g. [api.reducerPath]: api.reducer
+    [baseApi.reducerPath]: baseApi.reducer,
   },
-  // middleware: (getDefault) => getDefault().concat(api.middleware),
+  middleware: (gDM) => gDM().concat(baseApi.middleware),
 })
 
 export type RootState = ReturnType<typeof store.getState>
