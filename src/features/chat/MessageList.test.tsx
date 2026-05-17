@@ -84,4 +84,45 @@ describe('<MessageList />', () => {
     )
     expect(screen.getByText(/could not load messages/i)).toBeInTheDocument()
   })
+
+  it('renders inline translation when one is provided for a message', () => {
+    render(
+      <MessageList
+        messages={sample}
+        isLoading={false}
+        isError={false}
+        hasMore={false}
+        onLoadOlder={() => {}}
+        isFetchingOlder={false}
+        translations={{
+          1: {
+            status: 'ready',
+            targetLanguage: 'fr',
+            sourceLanguage: 'en',
+            text: 'bonjour',
+          },
+        }}
+      />,
+    )
+    expect(screen.getByText('bonjour')).toBeInTheDocument()
+    expect(screen.getByText(/EN.+FR/)).toBeInTheDocument()
+  })
+
+  it('fires onMessageContextMenu when a message is right-clicked', () => {
+    const onContext = vi.fn()
+    render(
+      <MessageList
+        messages={sample}
+        isLoading={false}
+        isError={false}
+        hasMore={false}
+        onLoadOlder={() => {}}
+        isFetchingOlder={false}
+        onMessageContextMenu={onContext}
+      />,
+    )
+    fireEvent.contextMenu(screen.getByText('hello'))
+    expect(onContext).toHaveBeenCalledOnce()
+    expect(onContext.mock.calls[0][0].id).toBe(1)
+  })
 })
