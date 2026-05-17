@@ -5,26 +5,36 @@ import { configureStore, type Reducer } from '@reduxjs/toolkit'
 import { MemoryRouter } from 'react-router-dom'
 import { baseApi } from '../api/baseApi'
 import { authReducer, type AuthState } from '../features/auth/slice'
+import { chatReducer, type ChatState } from '../features/chat/slice'
 
 export type TestRootState = {
   auth: AuthState
+  chat: ChatState
   [k: string]: unknown
 }
 
-export function makeTestStore(preloadedAuth?: Partial<AuthState>) {
+export function makeTestStore(preloaded?: {
+  auth?: Partial<AuthState>
+  chat?: Partial<ChatState>
+}) {
   const auth: AuthState = {
     accessToken: null,
     refreshToken: null,
     user: null,
-    ...preloadedAuth,
+    ...preloaded?.auth,
+  }
+  const chat: ChatState = {
+    activeRoomName: null,
+    ...preloaded?.chat,
   }
   return configureStore({
     reducer: {
       [baseApi.reducerPath]: baseApi.reducer as Reducer,
       auth: authReducer,
+      chat: chatReducer,
     },
     middleware: (gDM) => gDM().concat(baseApi.middleware),
-    preloadedState: { auth },
+    preloadedState: { auth, chat },
   })
 }
 
@@ -32,11 +42,15 @@ export function renderWithProviders(
   ui: ReactElement,
   options?: {
     preloadedAuth?: Partial<AuthState>
+    preloadedChat?: Partial<ChatState>
     route?: string
     renderOptions?: Omit<RenderOptions, 'wrapper'>
   },
 ) {
-  const store = makeTestStore(options?.preloadedAuth)
+  const store = makeTestStore({
+    auth: options?.preloadedAuth,
+    chat: options?.preloadedChat,
+  })
   function Wrapper({ children }: { children: React.ReactNode }) {
     return (
       <Provider store={store}>
