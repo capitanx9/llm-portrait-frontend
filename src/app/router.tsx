@@ -3,6 +3,7 @@ import { App } from '../App'
 import { LoginPage } from '../features/auth/LoginPage'
 import { RegisterPage } from '../features/auth/RegisterPage'
 import { ProfilePage } from '../features/auth/ProfilePage'
+import { ChatPage } from '../features/chat/ChatPage'
 import { ProtectedRoute } from '../components/ProtectedRoute'
 
 export const router = createBrowserRouter([
@@ -16,7 +17,7 @@ export const router = createBrowserRouter([
       {
         element: <ProtectedRoute />,
         children: [
-          { path: 'chat', element: <div>Chat (stub)</div> },
+          { path: 'chat', element: <ChatPage /> },
           { path: 'profile', element: <ProfilePage /> },
         ],
       },

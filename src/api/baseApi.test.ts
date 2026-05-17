@@ -45,7 +45,7 @@ describe('baseQueryWithReauth', () => {
       .mockResolvedValueOnce(jsonResponse({ access: 'new-access' }))
       .mockResolvedValueOnce(jsonResponse({ ok: true }))
 
-    const store = makeTestStore({ accessToken: 'old', refreshToken: 'r' })
+    const store = makeTestStore({ auth: { accessToken: 'old', refreshToken: 'r' } })
 
     const result = await store.dispatch(probeApi.endpoints.probe.initiate()).unwrap()
 
@@ -64,7 +64,7 @@ describe('baseQueryWithReauth', () => {
       .mockResolvedValueOnce(jsonResponse({ detail: 'expired' }, { status: 401 }))
       .mockResolvedValueOnce(jsonResponse({ detail: 'bad refresh' }, { status: 401 }))
 
-    const store = makeTestStore({ accessToken: 'old', refreshToken: 'r' })
+    const store = makeTestStore({ auth: { accessToken: 'old', refreshToken: 'r' } })
 
     await store
       .dispatch(probeApi.endpoints.probe.initiate())
