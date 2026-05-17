@@ -38,10 +38,16 @@ export const chatApi = baseApi.injectEndpoints({
         url: `/api/chat/rooms/${encodeURIComponent(name)}/messages/`,
         params: { limit, ...(before !== undefined ? { before } : {}) },
       }),
-      transformResponse: (response: PaginatedMessageList) => ({
-        results: response.results,
-        hasMore: !!response.next,
-      }),
+      transformResponse: (response: PaginatedMessageList | ChatMessage[]) => {
+        if (Array.isArray(response)) {
+          // Backend returns the raw array, oldest-first ordering is not
+          // guaranteed — sort by id so the chronological order is stable.
+          const sorted = [...response].sort((a, b) => a.id - b.id)
+          return { results: sorted, hasMore: false }
+        }
+        const sorted = [...(response.results ?? [])].sort((a, b) => a.id - b.id)
+        return { results: sorted, hasMore: !!response.next }
+      },
       providesTags: (_result, _err, arg) => [{ type: 'Messages', id: arg.name }],
     }),
   }),
