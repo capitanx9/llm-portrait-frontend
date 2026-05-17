@@ -1,73 +1,47 @@
-# React + TypeScript + Vite
+# llm-portrait-frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Single-page React app for [`llm-portrait`](https://github.com/capitanx9/llm-portrait): a chat with translation and conversation-summary AI actions.
 
-Currently, two official plugins are available:
+- **Stack**: React 19 + TypeScript + Vite 8, MUI v9, Redux Toolkit 2 + RTK Query, react-router-dom v7, react-use-websocket, Vitest 4. ESLint + Prettier + husky/lint-staged for formatting. Make as the task runner.
+- **Backend it talks to**: [`capitanx9/llm-portrait`](https://github.com/capitanx9/llm-portrait) — Django + Channels + Celery + Ollama. REST on `:8000` (Django), WebSocket on `:8001` (daphne).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Quick start
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+make install     # npm ci
+make dev         # vite dev server on http://localhost:5173
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+`/api/*` and `/ws/*` are proxied to the local backend by `vite.config.ts`. Bring the backend up via its own `make up` first; details in <https://github.com/capitanx9/llm-portrait/blob/main/docs/deployment/local.md>.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Production bundle locally:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+make build       # produces dist/
+make preview     # serves dist/ on :4173
 ```
+
+## Common commands
+
+```bash
+make              # show every target with its description
+make check        # lint + typecheck + tests — the pre-push gate
+make test         # one-shot vitest run
+make test-watch   # vitest in watch mode
+make format       # prettier-write everything, then eslint --fix
+make gen-api      # regenerate src/api/schema.ts from the backend's openapi.yaml
+```
+
+## Documentation
+
+- [`docs/`](docs/) — full documentation, organised by audience.
+- [`docs/overview.md`](docs/overview.md) — what this app does, in two screens.
+- [`docs/architecture.md`](docs/architecture.md) — code layout and data flow.
+- [`docs/api/client.md`](docs/api/client.md) — every endpoint we hit, JWT refresh flow, WebSocket contract.
+- [`docs/development/`](docs/development) — tooling, testing, CI, workflow.
+- [`docs/debug/`](docs/debug) — debug scenarios for Redux, HTTP and WebSocket.
+- [`docs/deployment/`](docs/deployment) — local and production deploy.
+
+## License
+
+MIT (or whatever the backend repo uses — pick one before going public).
