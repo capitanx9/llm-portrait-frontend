@@ -5,3 +5,6 @@ build
 coverage
 *.lock
 package-lock.json
+
+# generated
+src/api/schema.ts

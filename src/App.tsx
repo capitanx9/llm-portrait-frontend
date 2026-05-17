@@ -1,11 +1,4 @@
-import {
-  AppBar,
-  Box,
-  Button,
-  Container,
-  Toolbar,
-  Typography,
-} from '@mui/material'
+import { AppBar, Box, Button, Container, Toolbar, Typography } from '@mui/material'
 import { Outlet, useNavigate, Link as RouterLink } from 'react-router-dom'
 import { useAppSelector } from './hooks/useAppSelector'
 import { useLogoutMutation } from './features/auth/api'

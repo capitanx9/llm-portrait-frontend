@@ -1,15 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate, Link as RouterLink } from 'react-router-dom'
-import {
-  Alert,
-  Box,
-  Button,
-  Link,
-  Paper,
-  Stack,
-  TextField,
-  Typography,
-} from '@mui/material'
+import { Alert, Box, Button, Link, Paper, Stack, TextField, Typography } from '@mui/material'
 import { useLoginMutation } from './api'
 
 export function LoginPage() {

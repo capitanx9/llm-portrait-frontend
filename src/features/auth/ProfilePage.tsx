@@ -60,12 +60,7 @@ export function ProfilePage() {
             <Typography>
               <strong>Email:</strong> {data.email}
             </Typography>
-            <Button
-              variant="outlined"
-              color="error"
-              onClick={handleLogout}
-              disabled={isLoggingOut}
-            >
+            <Button variant="outlined" color="error" onClick={handleLogout} disabled={isLoggingOut}>
               {isLoggingOut ? 'Logging out…' : 'Log out'}
             </Button>
           </Stack>

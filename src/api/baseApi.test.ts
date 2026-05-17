@@ -47,27 +47,22 @@ describe('baseQueryWithReauth', () => {
 
     const store = makeTestStore({ accessToken: 'old', refreshToken: 'r' })
 
-    const result = await store
-      .dispatch(probeApi.endpoints.probe.initiate())
-      .unwrap()
+    const result = await store.dispatch(probeApi.endpoints.probe.initiate()).unwrap()
 
     expect(result).toEqual({ ok: true })
     expect(fetchMock).toHaveBeenCalledTimes(3)
     expect(urlOf(fetchMock.mock.calls[0])).toContain('/api/protected/')
     expect(urlOf(fetchMock.mock.calls[1])).toContain('/api/auth/refresh/')
     expect(urlOf(fetchMock.mock.calls[2])).toContain('/api/protected/')
-    expect(
-      (store.getState() as { auth: { accessToken: string | null } }).auth
-        .accessToken,
-    ).toBe('new-access')
+    expect((store.getState() as { auth: { accessToken: string | null } }).auth.accessToken).toBe(
+      'new-access',
+    )
   })
 
   it('clears credentials when refresh also fails', async () => {
     fetchMock
       .mockResolvedValueOnce(jsonResponse({ detail: 'expired' }, { status: 401 }))
-      .mockResolvedValueOnce(
-        jsonResponse({ detail: 'bad refresh' }, { status: 401 }),
-      )
+      .mockResolvedValueOnce(jsonResponse({ detail: 'bad refresh' }, { status: 401 }))
 
     const store = makeTestStore({ accessToken: 'old', refreshToken: 'r' })
 
