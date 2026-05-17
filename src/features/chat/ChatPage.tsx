@@ -9,7 +9,7 @@ const rawDefault: unknown = reactUseWebsocket.default
 const useWebSocket: UseWebSocketFn =
   typeof rawDefault === 'function'
     ? (rawDefault as UseWebSocketFn)
-    : ((rawDefault as { default: UseWebSocketFn }).default)
+    : (rawDefault as { default: UseWebSocketFn }).default
 import { Box, Typography } from '@mui/material'
 import { useAppDispatch } from '../../hooks/useAppDispatch'
 import { useAppSelector } from '../../hooks/useAppSelector'
