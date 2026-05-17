@@ -15,20 +15,28 @@ The frontend is a single-page React app that lets a logged-in user join a chat r
 
 ## How it talks to the backend
 
-- **REST** for everything synchronous: auth, room CRUD, message history, AI calls. The Django app runs on `:8000` locally and behind the same hostname in production. We talk JSON over HTTPS with `Authorization: Bearer <access>` on protected routes.
-- **WebSocket** for real-time message broadcast on `/ws/chat/<name>/?token=<access>`. Locally daphne serves this on `:8001`. In production it's behind the same hostname (`wss://`).
-- **No optimistic UI**: messages we send go out, the server saves them and broadcasts back; the bubble appears via the same path as everyone else's. This keeps client and server in sync without manual reconciliation.
+JSON over HTTPS with `Authorization: Bearer <access>` on protected routes. Real-time updates come over a WebSocket on `/ws/chat/<name>/?token=<access>`. Messages are not rendered optimistically — we send, the server saves and broadcasts back, the bubble appears via the same path as everyone else's.
+
+### Dev
+
+- Frontend at `http://localhost:5173` (Vite dev server).
+- Django REST at `http://localhost:8000`. Vite proxies `/api/*` to it.
+- daphne (WebSocket) at `ws://localhost:8001`. Vite proxies `/ws/*` to it.
+
+Browser thinks everything is same-origin — no CORS configuration involved.
+
+### Production
+
+- Frontend at `https://<cloudfront-distribution>.cloudfront.net` (placeholder — final URL lands when PR-7 ships; a custom domain on top of CloudFront is the eventual goal).
+- Backend at the production hostname (TBD when DNS and deployment are finalised).
+- TLS via ACM certificate, `wss://` for WebSocket.
+
+Both servers share a hostname so `/api/*` and `/ws/*` from the browser reach the backend without CORS. See [`deployment/s3-cloudfront.md`](deployment/s3-cloudfront.md).
 
 ## State and persistence
 
 - Auth state (`accessToken`, `refreshToken`, `user`) lives in Redux and is mirrored into `sessionStorage` so a tab refresh keeps the user logged in. Closing the tab logs them out.
 - Room selection (`activeRoomName`) lives in Redux but is not persisted — picking a room is a per-session choice.
 - Message history is held by RTK Query's cache, keyed by room name. WebSocket-delivered messages are kept in a small in-memory buffer on the page and merged with the REST history before render.
-
-## What this app is **not**
-
-- It does not generate API types by hand. The OpenAPI schema is committed in the backend repo; we regenerate `src/api/schema.ts` from it via `make gen-api`. See [`api/client.md`](api/client.md).
-- It does not manage AI rate limits, models or providers — that's the backend's job. We surface 429 and 503 as a snackbar; everything else is a regular request.
-- It does not have its own server. The production bundle is static files served from S3 behind CloudFront.
 
 For how the pieces fit together in the code, read [`architecture.md`](architecture.md).

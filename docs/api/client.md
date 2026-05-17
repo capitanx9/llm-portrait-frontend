@@ -80,7 +80,7 @@ Lives in `src/api/baseApi.ts` as `baseQueryWithReauth`. For every request:
 
 There is no mutex; concurrent 401s can each trigger their own refresh. This is fine for the small surface we have and avoids dragging in `async-mutex`. If we ever need it we'll add it.
 
-See [`debug/workflow/2-trace-http.md`](../debug/workflow/2-trace-http.md) for how to reproduce the 401 → refresh flow in DevTools.
+See [`debug/workflow/1-trace-http.md`](../debug/workflow/1-trace-http.md) for how to reproduce the 401 → refresh flow in DevTools.
 
 ## WebSocket
 

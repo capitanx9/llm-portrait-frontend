@@ -1,54 +1,58 @@
 # 0 · Setup
 
-What you need installed and running before any of the other debug docs make sense.
+What you need installed before any of the other debug docs make sense.
 
-## Toolchain
+## Browser
 
-- **Node 20+** (CI runs on 20). Local Node 25 works for development, but TypeScript ≥ 5.7 is required there — we already pin `~5.8.0` for that reason.
-- **npm** (ships with Node).
-- A browser. Anything Chromium-based or Safari/Firefox; the docs use Safari / Chrome wording interchangeably.
+**Google Chrome.** Everything below uses Chrome's DevTools UI; Safari/Firefox have the same features but in different places.
 
-## Browser extensions
+## Extensions
 
-- **Redux DevTools** — Chrome / Firefox / Safari. Strongly recommended; the rest of [`1-redux.md`](1-redux.md) assumes it.
-- **React Developer Tools** — useful but not essential.
+Both are free on the Chrome Web Store; install once, then restart the browser.
 
-## First run
+- **Redux DevTools** — adds a "Redux" tab to DevTools. Used in [`4-redux-devtools.md`](4-redux-devtools.md).
+- **React Developer Tools** — adds two tabs to DevTools, ⚛ Components and ⚛ Profiler. Used in [`5-react-devtools.md`](5-react-devtools.md).
 
-From the repo root:
+## Opening DevTools
+
+- `Cmd+Option+I` on macOS.
+- Right-click anywhere on the page → "Inspect".
+- `F12` on most keyboards.
+
+DevTools opens docked to the right or bottom of the window. The toggle for docking position is the three-dot menu in the top-right corner of DevTools.
+
+## The tabs you'll actually use
+
+| Tab              | What for                                                                                                               |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| **Network**      | Every HTTP request and WebSocket frame. See [`1-trace-http.md`](1-trace-http.md) and [`2-trace-ws.md`](2-trace-ws.md). |
+| **Application**  | Storage (session, local, cookies) and cache. See [`3-storage.md`](3-storage.md).                                       |
+| **Redux**        | Redux state tree + every action ever dispatched. See [`4-redux-devtools.md`](4-redux-devtools.md).                     |
+| **⚛ Components** | React component tree, props, hooks state. See [`5-react-devtools.md`](5-react-devtools.md).                            |
+| **⚛ Profiler**   | Record and analyse renders. Same doc.                                                                                  |
+
+You can drag tab order around. Put the ones you use most on the left.
+
+## First sanity check
 
 ```bash
-make install      # npm ci
-make dev          # vite dev server on http://localhost:5173
+make install
+make dev
 ```
 
-Open `http://localhost:5173`. You should see the AppBar with "llm-portrait" and Sign in / Register links.
+Open `http://localhost:5173`. DevTools → Network should show the initial document plus a handful of `.js`/`.css` requests, all 200.
 
-If the dev server itself fails to start, that's almost always a dependency issue — try `make clean && make install`.
+## Backend prerequisite
 
-## Backend you'll talk to
-
-Locally the frontend expects:
+The frontend expects:
 
 - Django REST on `http://localhost:8000`
-- daphne WS on `ws://localhost:8001`
+- daphne (WebSocket) on `ws://localhost:8001`
 
-vite proxies `/api/*` to `:8000` and `/ws/*` to `:8001` (see `vite.config.ts`). If the backend isn't running, every authenticated request will fail. Health check before debugging anything else:
+Health check before debugging:
 
 ```bash
 curl http://localhost:8000/api/health/
 ```
 
-Backend-side runbook is in <https://github.com/capitanx9/llm-portrait/blob/main/docs/deployment/local.md>.
-
-## DevTools panes you want open
-
-- **Network** with the **Fetch/XHR** filter for REST traffic.
-- **Network** with the **WS** filter for the chat socket.
-- **Console** for `console.error` from React.
-- **Application → Storage → Session Storage** to inspect `llm-portrait.auth`.
-- **Redux** tab once you install the extension.
-
-## Demo credentials
-
-If the backend has been seeded (`make seed-users` on the backend), `oleksa / pass1234` works out of the box. Otherwise register a new user via the UI.
+If the backend isn't running, every authenticated request will fail and it will look like a frontend bug.

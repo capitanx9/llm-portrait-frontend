@@ -21,11 +21,13 @@ The frontend for [`llm-portrait`](https://github.com/capitanx9/llm-portrait): a 
 
 **Debugging:**
 
-- [`debug/README.md`](debug/README.md) — index of debug scenarios.
-- [`debug/workflow/0-setup.md`](debug/workflow/0-setup.md) — environment + DevTools setup.
-- [`debug/workflow/1-redux.md`](debug/workflow/1-redux.md) — Redux DevTools and RTK Query cache.
-- [`debug/workflow/2-trace-http.md`](debug/workflow/2-trace-http.md) — chasing a REST request, including the 401 → refresh dance.
-- [`debug/workflow/3-trace-ws.md`](debug/workflow/3-trace-ws.md) — WebSocket frames and reconnect.
+- [`debug/README.md`](debug/README.md) — by-symptom index and the general "where to start" flow.
+- [`debug/workflow/0-setup.md`](debug/workflow/0-setup.md) — Chrome + extensions setup.
+- [`debug/workflow/1-trace-http.md`](debug/workflow/1-trace-http.md) — see exactly which HTTP request was sent and what came back.
+- [`debug/workflow/2-trace-ws.md`](debug/workflow/2-trace-ws.md) — WebSocket frames in and out.
+- [`debug/workflow/3-storage.md`](debug/workflow/3-storage.md) — Session Storage, where auth tokens live.
+- [`debug/workflow/4-redux-devtools.md`](debug/workflow/4-redux-devtools.md) — Redux DevTools, actions, RTK Query cache.
+- [`debug/workflow/5-react-devtools.md`](debug/workflow/5-react-devtools.md) — Components + Profiler tabs.
 
 **Testing and CI:**
 

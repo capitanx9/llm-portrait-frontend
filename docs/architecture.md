@@ -124,7 +124,7 @@ The auth slice (`src/features/auth/slice.ts`) keeps `{accessToken, refreshToken,
 
 `<ProtectedRoute />` wraps `/chat` and `/profile` in the router config. It is a UX safety net — the real gate is the backend's 401 on missing/invalid tokens.
 
-See [`debug/workflow/2-trace-http.md`](debug/workflow/2-trace-http.md) for how to watch the 401 → refresh → retry sequence in Network.
+See [`debug/workflow/1-trace-http.md`](debug/workflow/1-trace-http.md) for how to watch the 401 → refresh → retry sequence in Network.
 
 ## Types: where they come from
 
