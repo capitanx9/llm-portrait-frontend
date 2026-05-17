@@ -1,15 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate, Link as RouterLink } from 'react-router-dom'
-import {
-  Alert,
-  Box,
-  Button,
-  Link,
-  Paper,
-  Stack,
-  TextField,
-  Typography,
-} from '@mui/material'
+import { Alert, Box, Button, Link, Paper, Stack, TextField, Typography } from '@mui/material'
 import { useRegisterMutation } from './api'
 
 type FieldErrors = Partial<Record<'username' | 'email' | 'password', string[]>>
@@ -25,8 +16,7 @@ export function RegisterPage() {
     error && 'data' in error && error.data && typeof error.data === 'object'
       ? (error.data as FieldErrors)
       : {}
-  const formError =
-    error && !('data' in error) ? 'Registration failed' : null
+  const formError = error && !('data' in error) ? 'Registration failed' : null
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()

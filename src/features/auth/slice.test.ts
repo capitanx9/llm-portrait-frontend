@@ -1,11 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import {
-  authReducer,
-  setCredentials,
-  setUser,
-  clearCredentials,
-  type AuthState,
-} from './slice'
+import { authReducer, setCredentials, setUser, clearCredentials, type AuthState } from './slice'
 
 const empty: AuthState = { accessToken: null, refreshToken: null, user: null }
 
@@ -29,10 +23,7 @@ describe('authSlice', () => {
 
   it('stores user via setUser without touching tokens', () => {
     const seeded: AuthState = { accessToken: 'a', refreshToken: 'r', user: null }
-    const next = authReducer(
-      seeded,
-      setUser({ id: 1, username: 'oleksa', email: 'o@e.com' }),
-    )
+    const next = authReducer(seeded, setUser({ id: 1, username: 'oleksa', email: 'o@e.com' }))
     expect(next.user).toEqual({ id: 1, username: 'oleksa', email: 'o@e.com' })
     expect(next.accessToken).toBe('a')
   })
