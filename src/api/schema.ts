@@ -105,6 +105,51 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/chat/messages/{id}/reactions/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description POST /api/chat/messages/<pk>/reactions/ — add a reaction.
+         *
+         *     Idempotent: a second POST with the same emoji from the same user
+         *     returns 200 instead of 201 and does not create a duplicate row
+         *     (enforced by the unique_together on the model).
+         */
+        post: operations["chat_messages_reactions_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/chat/messages/{id}/reactions/{emoji}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * @description DELETE /api/chat/messages/<pk>/reactions/<emoji>/ — remove own reaction.
+         *
+         *     Idempotent: 204 even when the reaction doesn't exist, so the client can
+         *     issue a blind DELETE on chip click without first checking state.
+         */
+        delete: operations["chat_messages_reactions_destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/chat/rooms/": {
         parameters: {
             query?: never;
@@ -191,6 +236,10 @@ export interface components {
             readonly text: string;
             /** Format: date-time */
             readonly created_at: string;
+            readonly reactions: components["schemas"]["ReactionAggregate"][];
+        };
+        MessageReaction: {
+            emoji: string;
         };
         PaginatedMessageList: {
             /** @example 123 */
@@ -233,6 +282,12 @@ export interface components {
             source_language: string;
             translation?: string;
             summary?: string;
+        };
+        /** @description Shape of one entry in the `reactions` array on a message. */
+        ReactionAggregate: {
+            emoji: string;
+            count: number;
+            me: boolean;
         };
         Register: {
             readonly id: number;
@@ -456,6 +511,62 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["Register"];
                 };
+            };
+        };
+    };
+    chat_messages_reactions_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MessageReaction"];
+                "application/x-www-form-urlencoded": components["schemas"]["MessageReaction"];
+                "multipart/form-data": components["schemas"]["MessageReaction"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageReaction"];
+                };
+            };
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageReaction"];
+                };
+            };
+        };
+    };
+    chat_messages_reactions_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                emoji: string;
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

@@ -1,8 +1,9 @@
-import { useEffect, useRef, type MouseEvent } from 'react'
+import { useEffect, useRef, useState, type MouseEvent } from 'react'
 import {
   Alert,
   Box,
   Button,
+  Chip,
   CircularProgress,
   IconButton,
   Paper,
@@ -12,6 +13,7 @@ import {
 } from '@mui/material'
 import TranslateIcon from '@mui/icons-material/Translate'
 import type { ChatMessage } from './api'
+import { REACTION_PICKER_EMOJI, type ReactionAggregate } from './reactions'
 
 export interface MessageTranslation {
   status: 'loading' | 'ready' | 'error'
@@ -31,6 +33,7 @@ interface Props {
   translations?: Record<number, MessageTranslation>
   onMessageContextMenu?: (message: ChatMessage, e: MouseEvent) => void
   onTranslateClick?: (message: ChatMessage, e: MouseEvent) => void
+  onReactionToggle?: (message: ChatMessage, emoji: string, currentlyMine: boolean) => void
 }
 
 function formatTime(iso: string): string {
@@ -54,9 +57,11 @@ export function MessageList({
   translations,
   onMessageContextMenu,
   onTranslateClick,
+  onReactionToggle,
 }: Props) {
   const bottomRef = useRef<HTMLDivElement>(null)
   const lastIdRef = useRef<number | null>(null)
+  const [pickerForMessageId, setPickerForMessageId] = useState<number | null>(null)
 
   useEffect(() => {
     const lastMessage = messages[messages.length - 1]
@@ -103,12 +108,16 @@ export function MessageList({
       <Stack spacing={1}>
         {messages.map((msg) => {
           const t = translations?.[msg.id]
+          const reactions: readonly ReactionAggregate[] = msg.reactions ?? []
+          const pickerOpen = pickerForMessageId === msg.id
           return (
             <Paper
               key={msg.id}
               elevation={0}
-              sx={{ p: 1.2, bgcolor: 'grey.100', borderRadius: 2 }}
+              sx={{ p: 1.2, bgcolor: 'grey.100', borderRadius: 2, position: 'relative' }}
               onContextMenu={onMessageContextMenu ? (e) => onMessageContextMenu(msg, e) : undefined}
+              onMouseEnter={onReactionToggle ? () => setPickerForMessageId(msg.id) : undefined}
+              onMouseLeave={onReactionToggle ? () => setPickerForMessageId(null) : undefined}
             >
               <Box
                 sx={{
@@ -139,6 +148,53 @@ export function MessageList({
               <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
                 {msg.text}
               </Typography>
+              {onReactionToggle && reactions.length > 0 && (
+                <Stack direction="row" spacing={0.5} sx={{ mt: 0.75, flexWrap: 'wrap' }}>
+                  {reactions.map((r) => (
+                    <Chip
+                      key={r.emoji}
+                      label={`${r.emoji} ${r.count}`}
+                      size="small"
+                      color={r.me ? 'primary' : 'default'}
+                      variant={r.me ? 'filled' : 'outlined'}
+                      onClick={() => onReactionToggle(msg, r.emoji, r.me)}
+                      aria-label={`Reaction ${r.emoji}, count ${r.count}${r.me ? ', mine' : ''}`}
+                    />
+                  ))}
+                </Stack>
+              )}
+              {onReactionToggle && pickerOpen && (
+                <Paper
+                  elevation={3}
+                  role="menu"
+                  aria-label={`Add reaction to message ${msg.id}`}
+                  sx={{
+                    position: 'absolute',
+                    top: -16,
+                    right: 8,
+                    display: 'flex',
+                    gap: 0.25,
+                    px: 0.5,
+                    py: 0.25,
+                    borderRadius: 4,
+                  }}
+                >
+                  {REACTION_PICKER_EMOJI.map((emoji) => (
+                    <IconButton
+                      key={emoji}
+                      size="small"
+                      onClick={() => {
+                        onReactionToggle(msg, emoji, false)
+                        setPickerForMessageId(null)
+                      }}
+                      aria-label={`React with ${emoji}`}
+                      sx={{ fontSize: 18, p: 0.5 }}
+                    >
+                      <span aria-hidden>{emoji}</span>
+                    </IconButton>
+                  ))}
+                </Paper>
+              )}
               {t && (
                 <Box
                   sx={{
