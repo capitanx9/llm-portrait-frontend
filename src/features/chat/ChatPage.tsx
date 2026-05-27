@@ -23,11 +23,15 @@ import { TranslateMenu } from '../ai/TranslateMenu'
 import { SummaryDialog } from '../ai/SummaryDialog'
 
 function wsUrlFor(name: string, token: string): string {
+  const path = `/ws/chat/${encodeURIComponent(name)}/?token=${encodeURIComponent(token)}`
+  const fromEnv = import.meta.env.VITE_WS_BASE_URL
+  if (fromEnv) {
+    const base = fromEnv.endsWith('/') ? fromEnv.slice(0, -1) : fromEnv
+    return `${base}${path}`
+  }
   if (typeof window === 'undefined') return ''
   const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-  return `${proto}//${window.location.host}/ws/chat/${encodeURIComponent(
-    name,
-  )}/?token=${encodeURIComponent(token)}`
+  return `${proto}//${window.location.host}${path}`
 }
 
 interface IncomingFrame {
@@ -99,8 +103,7 @@ export function ChatPage() {
 
   const messages = useMemo(() => {
     const restMessages = messagesPage?.results ?? []
-    const liveMessages =
-      liveState.room === activeRoomName ? liveState.messages : []
+    const liveMessages = liveState.room === activeRoomName ? liveState.messages : []
     const seen = new Set<number>(restMessages.map((m) => m.id))
     const extra = liveMessages.filter((m) => !seen.has(m.id))
     return [...restMessages, ...extra]

@@ -26,6 +26,9 @@ jobs:
 
       - run: npm ci
       - run: npm run build
+        env:
+          VITE_API_BASE_URL: https://llm-portrait.gotdns.ch
+          VITE_WS_BASE_URL: wss://llm-portrait.gotdns.ch
 
       - uses: aws-actions/configure-aws-credentials@v4
         with:

@@ -111,9 +111,22 @@ Added by hand on GitHub (`Settings → Secrets and variables → Actions`):
 
 We never run `gh secret set` from a script. Secret material is added through the UI by the repo owner.
 
-## Backend CORS
+## Build-time env vars (point the bundle at the backend)
 
-The backend needs to allow the production frontend origin in `CORS_ALLOWED_ORIGINS`. That edit happens on the backend side in `/opt/llm-portrait/.env`; the deployment doc for it is in the backend repo.
+Because frontend and backend live on different origins in prod (CloudFront vs `llm-portrait.gotdns.ch`), the bundle has to know the absolute backend URL. `cd.yml` injects two `VITE_*` variables at build time:
+
+```yaml
+- run: npm run build
+  env:
+    VITE_API_BASE_URL: https://llm-portrait.gotdns.ch
+    VITE_WS_BASE_URL: wss://llm-portrait.gotdns.ch
+```
+
+Vite inlines `import.meta.env.VITE_*` into the bundle at build, so these aren't runtime secrets — they're committed in plain text in `cd.yml`. In dev (`make dev`) neither var is set, the bundle falls back to `window.location.origin`, and the Vite proxy forwards `/api/*` and `/ws/*` to the local backend on `:8000` / `:8001`. See [`../api/client.md`](../api/client.md#base-url-and-the-dev-proxy).
+
+## Backend CORS / WS-origin allowlist
+
+The backend needs to allow the production frontend origin in `CORS_ALLOWED_ORIGINS` (REST preflight) and `WS_ALLOWED_ORIGINS` (Channels handshake). That edit happens on the backend side in `/opt/llm-portrait/.env`. Detail in the backend repo's [`docs/deployment/frontend.md`](https://github.com/capitanx9/llm-portrait/blob/main/docs/deployment/frontend.md).
 
 ## Smoke checks after a deploy
 
