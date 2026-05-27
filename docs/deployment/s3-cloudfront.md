@@ -36,7 +36,7 @@ The backend stays on its own EC2 host; CloudFront and the backend share nothing 
 | Attach the certificate as an alternate domain name on the distribution                                                                                                                                              | AWS console |
 | IAM role for GitHub OIDC, trusted to `repo:capitanx9/llm-portrait-frontend:ref:refs/heads/main`. Permissions: `s3:PutObject`, `s3:DeleteObject` on the bucket, `cloudfront:CreateInvalidation` on the distribution. | AWS IAM     |
 
-The DNS record (CNAME for the custom domain) is currently on NoIP. There were a few false starts with NoIP's shared zone restrictions; for now we plan to ship on the raw `*.cloudfront.net` URL until DNS is sorted out.
+**Why a raw `*.cloudfront.net` URL, not a custom subdomain.** Detailed in the backend repo's [`docs/deployment/frontend.md`](https://github.com/capitanx9/llm-portrait/blob/main/docs/deployment/frontend.md#dns). Short version: the backend's domain is on NoIP's shared zone (`gotdns.ch`), which blocks records with leading underscores; that breaks ACM's DNS-validation challenge for any custom subdomain we'd point at CloudFront. Buying a proper second-level domain (Cloudflare Registrar, NoIP Registrar, anywhere — ~$10–15/year) fixes it, but is out of Lab scope.
 
 ## Cache policy
 
