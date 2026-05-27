@@ -24,12 +24,16 @@ The generator hates being reformatted, so `.prettierignore` excludes `src/api/sc
 
 ## Base URL and the dev proxy
 
-`fetchBaseQuery` is configured with `baseUrl = "<window.location.origin>/"` (with a Node fallback for tests). Every endpoint passes a relative path like `/api/chat/rooms/`.
+`fetchBaseQuery`'s `baseUrl` is resolved at runtime in this priority order:
 
-- **Dev**: the browser hits `http://localhost:5173/api/...`. `vite.config.ts` proxies `/api/*` to `http://localhost:8000` (Django) and `/ws/*` to `ws://localhost:8001` (daphne). No CORS gymnastics — the browser thinks everything is same-origin.
-- **Prod**: served from CloudFront. `/api/*` and `/ws/*` must reach the backend; the routing config is set up on the backend deployment side.
+1. `import.meta.env.VITE_API_BASE_URL` — set at build time. This is how the prod bundle reaches the backend across origins (CloudFront frontend → `llm-portrait.gotdns.ch` backend).
+2. `${window.location.origin}/` — fallback when no env is set. This is the dev path: the browser hits `http://localhost:5173/api/...` and Vite's proxy forwards to the local backend.
+3. `http://localhost/` — Node fallback for vitest under jsdom (`undici` refuses relative URLs).
 
-Why an absolute origin instead of just `'/'`? Because `undici` (Node's fetch in tests) refuses relative URLs. Resolving to `window.location.origin` is correct in the browser, and `'http://localhost'` works for vitest under jsdom.
+The WebSocket URL follows the same priority via `VITE_WS_BASE_URL` (e.g. `wss://llm-portrait.gotdns.ch`).
+
+- **Dev**: no `VITE_*_BASE_URL` set, so `baseUrl` falls back to `http://localhost:5173/`. `vite.config.ts` proxies `/api/*` to `http://localhost:8000` and `/ws/*` to `ws://localhost:8001`. Browser sees same-origin, no CORS.
+- **Prod**: `cd.yml` injects `VITE_API_BASE_URL=https://llm-portrait.gotdns.ch` and `VITE_WS_BASE_URL=wss://llm-portrait.gotdns.ch` into `npm run build`. Vite inlines them into the bundle. Cross-origin requests; backend allow-lists the CloudFront origin via `CORS_ALLOWED_ORIGINS` and `WS_ALLOWED_ORIGINS`.
 
 ## REST endpoints we use
 

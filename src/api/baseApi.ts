@@ -8,10 +8,16 @@ import {
 import { clearCredentials, setCredentials } from '../features/auth/slice'
 import type { RootState } from '../app/store'
 
-const API_BASE_URL =
-  typeof window !== 'undefined' && window.location?.origin
-    ? `${window.location.origin}/`
-    : 'http://localhost/'
+function resolveApiBaseUrl(): string {
+  const fromEnv = import.meta.env.VITE_API_BASE_URL
+  if (fromEnv) return fromEnv.endsWith('/') ? fromEnv : `${fromEnv}/`
+  if (typeof window !== 'undefined' && window.location?.origin) {
+    return `${window.location.origin}/`
+  }
+  return 'http://localhost/'
+}
+
+const API_BASE_URL = resolveApiBaseUrl()
 
 const rawBaseQuery = fetchBaseQuery({
   baseUrl: API_BASE_URL,
