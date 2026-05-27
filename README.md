@@ -42,6 +42,10 @@ make gen-api      # regenerate src/api/schema.ts from the backend's openapi.yaml
 - [`docs/debug/`](docs/debug) — debug scenarios for Redux, HTTP and WebSocket.
 - [`docs/deployment/`](docs/deployment) — local and production deploy.
 
+## Code review
+
+Pull requests are reviewed by [@mashincode](https://github.com/mashincode) (auto-requested via [`.github/CODEOWNERS`](.github/CODEOWNERS)).
+
 ## License
 
 MIT (or whatever the backend repo uses — pick one before going public).
