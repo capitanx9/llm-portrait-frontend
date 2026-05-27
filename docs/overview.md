@@ -27,11 +27,11 @@ Browser thinks everything is same-origin — no CORS configuration involved.
 
 ### Production
 
-- Frontend at `https://<cloudfront-distribution>.cloudfront.net` (placeholder — final URL lands when PR-7 ships; a custom domain on top of CloudFront is the eventual goal).
-- Backend at the production hostname (TBD when DNS and deployment are finalised).
-- TLS via ACM certificate, `wss://` for WebSocket.
+- Frontend at <https://d16lbq7rem1z12.cloudfront.net> (S3 + CloudFront, AWS-managed cert on the raw `*.cloudfront.net` URL — no custom subdomain; see [`deployment/s3-cloudfront.md`](deployment/s3-cloudfront.md) for why).
+- Backend at <https://llm-portrait.gotdns.ch>. REST at `/api/*`, WebSocket at `wss://.../ws/*`.
+- TLS via ACM (frontend) and Let's Encrypt (backend); `wss://` for WebSocket.
 
-Both servers share a hostname so `/api/*` and `/ws/*` from the browser reach the backend without CORS. See [`deployment/s3-cloudfront.md`](deployment/s3-cloudfront.md).
+**Split origin**: the browser talks to two hostnames. CORS preflight on REST is allow-listed via `CORS_ALLOWED_ORIGINS` on the backend, the WS handshake via `WS_ALLOWED_ORIGINS`. Detailed in the backend repo's [`docs/deployment/frontend.md`](https://github.com/capitanx9/llm-portrait/blob/main/docs/deployment/frontend.md).
 
 ## State and persistence
 
