@@ -13,12 +13,14 @@ const sample: ChatMessage[] = [
     sender: 'alice',
     text: 'hello',
     created_at: '2026-05-17T10:00:00Z',
+    reactions: [],
   },
   {
     id: 2,
     sender: 'bob',
     text: 'hi',
     created_at: '2026-05-17T10:01:00Z',
+    reactions: [],
   },
 ]
 
@@ -124,5 +126,120 @@ describe('<MessageList />', () => {
     fireEvent.contextMenu(screen.getByText('hello'))
     expect(onContext).toHaveBeenCalledOnce()
     expect(onContext.mock.calls[0][0].id).toBe(1)
+  })
+
+  describe('reactions', () => {
+    const withReactions: ChatMessage[] = [
+      {
+        id: 7,
+        sender: 'alice',
+        text: 'hello',
+        created_at: '2026-05-17T10:00:00Z',
+        reactions: [
+          { emoji: '👍', count: 2, me: false },
+          { emoji: '❤️', count: 1, me: true },
+        ],
+      },
+    ]
+
+    it('renders a chip per reaction with count', () => {
+      render(
+        <MessageList
+          messages={withReactions}
+          isLoading={false}
+          isError={false}
+          hasMore={false}
+          onLoadOlder={() => {}}
+          isFetchingOlder={false}
+          onReactionToggle={() => {}}
+        />,
+      )
+      expect(screen.getByText('👍 2')).toBeInTheDocument()
+      expect(screen.getByText('❤️ 1')).toBeInTheDocument()
+    })
+
+    it('fires onReactionToggle with currentlyMine=false when clicking a chip the user has not reacted with', () => {
+      const onToggle = vi.fn()
+      render(
+        <MessageList
+          messages={withReactions}
+          isLoading={false}
+          isError={false}
+          hasMore={false}
+          onLoadOlder={() => {}}
+          isFetchingOlder={false}
+          onReactionToggle={onToggle}
+        />,
+      )
+      fireEvent.click(screen.getByText('👍 2'))
+      expect(onToggle).toHaveBeenCalledOnce()
+      const [msg, emoji, mine] = onToggle.mock.calls[0]
+      expect(msg.id).toBe(7)
+      expect(emoji).toBe('👍')
+      expect(mine).toBe(false)
+    })
+
+    it('fires onReactionToggle with currentlyMine=true when clicking the user’s own chip', () => {
+      const onToggle = vi.fn()
+      render(
+        <MessageList
+          messages={withReactions}
+          isLoading={false}
+          isError={false}
+          hasMore={false}
+          onLoadOlder={() => {}}
+          isFetchingOlder={false}
+          onReactionToggle={onToggle}
+        />,
+      )
+      fireEvent.click(screen.getByText('❤️ 1'))
+      const [, emoji, mine] = onToggle.mock.calls[0]
+      expect(emoji).toBe('❤️')
+      expect(mine).toBe(true)
+    })
+
+    it('shows the 5-emoji picker on hover and hides it after a pick (which fires onReactionToggle)', () => {
+      const onToggle = vi.fn()
+      render(
+        <MessageList
+          messages={withReactions}
+          isLoading={false}
+          isError={false}
+          hasMore={false}
+          onLoadOlder={() => {}}
+          isFetchingOlder={false}
+          onReactionToggle={onToggle}
+        />,
+      )
+      const bubble = screen.getByText('hello').closest('.MuiPaper-root')!
+      fireEvent.mouseEnter(bubble)
+      const picker = screen.getByRole('menu', { name: /add reaction to message 7/i })
+      expect(picker).toBeInTheDocument()
+      const laughBtn = screen.getByRole('button', { name: /react with 😂/i })
+      fireEvent.click(laughBtn)
+      const [, emoji, mine] = onToggle.mock.calls[0]
+      expect(emoji).toBe('😂')
+      expect(mine).toBe(false)
+      expect(
+        screen.queryByRole('menu', { name: /add reaction to message 7/i }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('does not render the picker or chips when onReactionToggle is not provided', () => {
+      render(
+        <MessageList
+          messages={withReactions}
+          isLoading={false}
+          isError={false}
+          hasMore={false}
+          onLoadOlder={() => {}}
+          isFetchingOlder={false}
+        />,
+      )
+      expect(screen.queryByText('👍 2')).not.toBeInTheDocument()
+      const bubble = screen.getByText('hello').closest('.MuiPaper-root')!
+      fireEvent.mouseEnter(bubble)
+      expect(screen.queryByRole('menu', { name: /add reaction/i })).not.toBeInTheDocument()
+    })
   })
 })

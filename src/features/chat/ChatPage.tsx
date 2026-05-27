@@ -21,6 +21,7 @@ import { ConnectionBanner } from './ConnectionBanner'
 import { useProcessAiMutation, type TargetLanguage, type ConversationTurn } from '../ai/api'
 import { TranslateMenu } from '../ai/TranslateMenu'
 import { SummaryDialog } from '../ai/SummaryDialog'
+import { useAddReactionMutation, useRemoveReactionMutation } from './reactions'
 
 function wsUrlFor(name: string, token: string): string {
   if (typeof window === 'undefined') return ''
@@ -99,8 +100,7 @@ export function ChatPage() {
 
   const messages = useMemo(() => {
     const restMessages = messagesPage?.results ?? []
-    const liveMessages =
-      liveState.room === activeRoomName ? liveState.messages : []
+    const liveMessages = liveState.room === activeRoomName ? liveState.messages : []
     const seen = new Set<number>(restMessages.map((m) => m.id))
     const extra = liveMessages.filter((m) => !seen.has(m.id))
     return [...restMessages, ...extra]
@@ -136,6 +136,7 @@ export function ChatPage() {
       sender: lastJsonMessage.sender,
       text: lastJsonMessage.text,
       created_at: lastJsonMessage.created_at,
+      reactions: [],
     }
     setLiveState({
       room: activeRoomName,
@@ -145,6 +146,9 @@ export function ChatPage() {
         : [...liveState.messages, incoming],
     })
   }
+
+  const [addReaction] = useAddReactionMutation()
+  const [removeReaction] = useRemoveReactionMutation()
 
   // AI state — local to the page
   const [processAi] = useProcessAiMutation()
@@ -259,6 +263,15 @@ export function ChatPage() {
     sendJsonMessage({ text })
   }
 
+  function handleReactionToggle(message: ChatMessage, emoji: string, currentlyMine: boolean) {
+    if (!activeRoomName) return
+    const args = { messageId: message.id, emoji, roomName: activeRoomName }
+    const promise = currentlyMine ? removeReaction(args) : addReaction(args)
+    promise.unwrap().catch((err) => {
+      handleErrorFromMutation(err)
+    })
+  }
+
   function handleLoadOlder() {
     const first = messages[0]
     if (first) setCursorState({ room: activeRoomName, before: first.id })
@@ -317,6 +330,7 @@ export function ChatPage() {
               translations={translations}
               onMessageContextMenu={handleContextMenu}
               onTranslateClick={handleTranslateClick}
+              onReactionToggle={handleReactionToggle}
             />
             <MessageInput onSend={handleSend} disabled={connectionState !== 'open'} />
           </>
