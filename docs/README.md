@@ -36,7 +36,7 @@ The frontend for [`llm-portrait`](https://github.com/capitanx9/llm-portrait): a 
 
 **Deployment:**
 
-- [`deployment/s3-cloudfront.md`](deployment/s3-cloudfront.md) — production deploy via S3 + CloudFront (the CD pipeline lands in a follow-up PR).
+- [`deployment/s3-cloudfront.md`](deployment/s3-cloudfront.md) — production deploy via S3 + CloudFront, auto-deployed on every push to `main`.
 
 ## Related backend docs
 

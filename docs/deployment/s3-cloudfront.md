@@ -1,6 +1,6 @@
 # S3 + CloudFront deployment
 
-> **Status:** the CD workflow file is drafted but not yet merged. It lives on a parked branch and will land in a follow-up PR once the AWS account verification clears for CloudFront. The infra description below is what the final setup looks like.
+Live at <https://d16lbq7rem1z12.cloudfront.net>. CD workflow ([`.github/workflows/cd.yml`](../../.github/workflows/cd.yml)) deploys on every push to `main`.
 
 ## Why S3 + CloudFront
 
